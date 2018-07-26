@@ -1,7 +1,7 @@
 module.exports = {
     welcome: 'Welcome to API. This message contains route list',
     'POST /register': {
-        'request': ['name', 'password', 'bossName', 'isAdmin (optional, default: false)'],
+        'request': ['name', 'password', 'bossName'],
         'response': ['success: boolean', 'message']
     },
     'POST /login': {
@@ -17,3 +17,5 @@ module.exports = {
         'response': ['success: boolean', 'message: error (in case of fail)']
     }
 };
+
+//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsIm5hbWUiOiJ5dXJpIiwiaXNBZG1pbiI6bnVsbCwiaWF0IjoxNTMyNjIxMTM5fQ.bwOTksiQoIS593Jah18AUj9oEucznHVGf6ecAwni_ZA
