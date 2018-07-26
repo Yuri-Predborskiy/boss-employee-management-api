@@ -2,16 +2,23 @@
   "name": "boss-employee-circle",
   "version": "1.0.0",
   "description": "test task - create a simple RESTful API",
+  "engines": {
+    "node": "8.11.3"
+  },
   "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Yuri Predborski",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.3",
+    "dotenv": "^6.0.0",
     "express": "^4.16.3",
+    "jsonwebtoken": "^8.3.0",
     "mongoose": "^5.2.5",
-    "morgan": "^1.9.0"
+    "morgan": "^1.9.0",
+    "mysql": "^2.16.0"
   }
 }

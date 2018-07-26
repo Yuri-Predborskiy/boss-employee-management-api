@@ -1,8 +1,9 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const apiRoutes = require('./src/routes');
-const welcomeMessage = require('./src/resources/welcome');
+const welcomeMessage = require('./resources/welcome');
 
 const app = express();
 
