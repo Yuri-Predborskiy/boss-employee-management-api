@@ -1,6 +1,6 @@
 const mysql = require('mysql');
 
-const connection  = mysql.createConnection(process.env.CLEARDB_DATABASE_URL);
+const pool  = mysql.createPool(process.env.DATABASE_URL);
 
 const query = function (queryString, parameters) {
     return new Promise((resolve, reject) => {
@@ -12,11 +12,10 @@ const query = function (queryString, parameters) {
             }
         };
 
-        connection.query(queryString, parameters, resultCb);
+        pool.query(queryString, parameters, resultCb);
     });
 };
 
 module.exports = {
     query,
 };
-
