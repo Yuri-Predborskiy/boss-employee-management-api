@@ -1,5 +1,6 @@
 module.exports = {
     welcome: 'Welcome to API. This message contains route list',
+    api: 'all routes start with /api, like /api/register',
     'POST /register': {
         'request': ['name', 'password', 'bossName'],
         'response': ['success: boolean', 'message']
