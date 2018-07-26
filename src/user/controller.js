@@ -17,11 +17,11 @@ async function authenticate(req, res) {
         user = await User.getByName(req.body.name);
     } catch (err) {
         console.error(err);
-        rejectRequest(res, 'Error checking if user exists');
+        return rejectRequest(res, 'Error checking if user exists');
     }
 
     if (!user || user.password !== req.body.password) {
-        rejectRequest(res, 'User with such login/password not found');
+        return rejectRequest(res, 'User with such login/password not found');
     }
 
     let token = generateAccessToken(user);
@@ -50,11 +50,11 @@ async function createUser(req, res) {
         user = await User.getByName(req.body.name);
     } catch (err) {
         console.error(err);
-        rejectRequest(res, 'Error checking if user exists');
+        return rejectRequest(res, 'Error checking if user exists');
     }
 
     if (user) {
-        rejectRequest(res, 'Employee already exists.');
+        return rejectRequest(res, 'Employee already exists.');
     }
 
     let boss = null;
@@ -62,11 +62,11 @@ async function createUser(req, res) {
         boss = await User.getByName(req.body.bossName);
     } catch (err) {
         console.error(err);
-        rejectRequest('Error getting Boss.');
+        return rejectRequest('Error getting Boss.');
     }
 
     if (!boss) {
-        rejectRequest(res, 'Boss not found. Every employee needs a boss!');
+        return rejectRequest(res, 'Boss not found. Every employee needs a boss!');
     }
 
     try {
@@ -78,7 +78,7 @@ async function createUser(req, res) {
         await User.create(employee);
     } catch (err) {
         console.error(err);
-        rejectRequest(res, 'Error creating new employee');
+        return rejectRequest(res, 'Error creating new employee');
     }
     return acceptRequest(res, 'User created.')
 }
@@ -88,14 +88,16 @@ async function getAllUsers(req, res) {
         return acceptRequest(res, User.getAll());
     }
 
-    let subordinates = [];
+    let subordinates = [req.decoded.name];
     try {
-        subordinates = await User.getAllByBossId(req.decoded.userId);
+        let users = await User.getAllByBossId(req.decoded.userId);
+        users = users.map(user => user.name);
+        subordinates = subordinates.concat(users);
     } catch (err) {
         console.error(err);
         return rejectRequest(res, 'Error getting users.')
     }
-    return acceptRequest(res, 'Users: ' + subordinates.unshift(req.decoded.name).join(', '));
+    return acceptRequest(res, 'Employees: ' + subordinates.join(', '));
 }
 
 async function setBoss(req, res) {
@@ -105,11 +107,19 @@ async function setBoss(req, res) {
         employee = await User.getByName(req.body.name);
         boss = await User.getByName(req.body.bossName);
     } catch (err) {
-        rejectRequest(res, 'Error getting user.');
+        return rejectRequest(res, 'Error getting user.');
+    }
+
+    if (!req.body.name
+        || !req.body.bossName
+        || req.body.name === req.body.bossName
+        || employee.bossId === boss.id
+    ) {
+        return rejectRequest(res, 'Invalid parameters.');
     }
 
     if (!req.decoded.isAdmin && employee.bossId !== req.decoded.userId) {
-        rejectRequest(res, 'User can only change boss of their subordinates!');
+        return rejectRequest(res, 'User can only change boss of their subordinates!');
     }
 
     let cycle = await hasCycle(employee.id, boss);
@@ -117,13 +127,14 @@ async function setBoss(req, res) {
         return rejectRequest(res, 'Error: circular dependency detected.')
     }
 
+    await User.updateUserBossById(employee.id, { bossId: boss.id });
     return acceptRequest(res, `Updated boss for ${req.body.name}.`);
 }
 
 async function hasCycle(employeeId, boss) {
     let bosses = { [boss.id]: true };
     let bossOfBoss = boss;
-    while (bossOfBoss.id !== employeeId && bossOfBoss.id !== undefined && bossOfBoss !== null) {
+    while (bossOfBoss.bossId !== undefined && bossOfBoss.bossId !== null) {
         bossOfBoss = await User.getById(bossOfBoss.bossId);
         if (bosses[bossOfBoss.id]) {
             return true;

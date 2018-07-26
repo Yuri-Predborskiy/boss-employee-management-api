@@ -1,7 +1,7 @@
 const db = require('../services/db');
 
 const create = async function (user) {
-    const query = 'INSERT INTO user SET ?';
+    const query = 'INSERT INTO employees SET ?';
     return await db.query(query, user);
 };
 
@@ -12,7 +12,7 @@ const getAll = async function () {
 };
 
 const getById = async function (id) {
-    const query = 'SELECT id, name, isAdmin FROM employees WHERE id = ?';
+    const query = 'SELECT id, name, isAdmin, bossId FROM employees WHERE id = ?';
     const result = await db.query(query, id);
     if (!result || result.length === 0) {
         return null;
@@ -34,10 +34,16 @@ const getAllByBossId = async function(bossId) {
     return await db.query(query, bossId);
 };
 
+const updateUserBossById = async function(id, updates) {
+    const query = 'UPDATE employees SET ? WHERE ID = ?';
+    return await db.query(query, [updates, id]);
+};
+
 module.exports = {
     create,
     getAll,
     getById,
     getByName,
-    getAllByBossId
+    getAllByBossId,
+    updateUserBossById
 };
