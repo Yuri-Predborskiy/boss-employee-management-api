@@ -85,7 +85,9 @@ async function createUser(req, res) {
 
 async function getAllUsers(req, res) {
     if (req.decoded.isAdmin) {
-        return acceptRequest(res, User.getAll());
+        let users = await User.getAll();
+        users = users.map(user => user.name);
+        return acceptRequest(res, users.join(', '));
     }
 
     let subordinates = [req.decoded.name];
@@ -132,7 +134,7 @@ async function setBoss(req, res) {
 }
 
 async function hasCycle(employeeId, boss) {
-    let bosses = { [boss.id]: true };
+    let bosses = { [employeeId]: true, [boss.id]: true };
     let bossOfBoss = boss;
     while (bossOfBoss.bossId !== undefined && bossOfBoss.bossId !== null) {
         bossOfBoss = await User.getById(bossOfBoss.bossId);

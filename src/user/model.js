@@ -7,7 +7,7 @@ const create = async function (user) {
 
 // exclusively for admins
 const getAll = async function () {
-    const query = 'SELECT name FROM employees';
+    const query = 'SELECT id, name, isAdmin, bossId FROM employees';
     return await db.query(query);
 };
 
